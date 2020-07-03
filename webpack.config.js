@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const ZipPlugin = require('zip-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const gitRevisionPlugin = new GitRevisionPlugin({
@@ -37,29 +38,40 @@ const configBase = {
   optimization: {
     minimize: false,
   },
-  externals:[{ "aws-sdk": "commonjs aws-sdk" }],
+  externals:[
+    { "aws-sdk": "commonjs aws-sdk" },
+    { "../resources.conf.json": "./resources.conf.json" },
+    { "./resources.conf.json": "./resources.conf.json" }
+
+  ],
   devtool: 'inline-cheap-module-source-map',
+  plugins: [
+    new RemovePlugin({ after: {
+        include: [`./dist/js`],
+        log: true,
+    } })
+  ]
 };
 
+
 const configPlugins = {
-    plugins: Object.keys(configBase.entry).map((entryName) => {
-        return new ZipPlugin({
+    plugins: 
+    Object.keys(configBase.entry).map((entryName) => {
+        return [
+        new CopyPlugin({patterns: [{ from: 'resources.conf.json', to: `js/${entryName}/resources.conf.json` }] }),
+        new ZipPlugin({
             path: path.resolve('dist/'),
             filename: `${entryName}-${gitRevisionPlugin.version()}`,
             include: [new RegExp(`${entryName}/.*`)],
             pathMapper: assetPath => path.basename(assetPath),
             extension: 'zip'
         })
-    })
+        ]
+    }).flat()
 };
-const config = Object.assign(configBase, configPlugins);
+configBase.plugins = configBase.plugins.concat(configPlugins.plugins);
 
-config.plugins.push(        new RemovePlugin({
-            after: {
-                include: [`./dist/js`],
-                log: true,
-            }
-        })
-);
+const config = Object.assign({}, configBase);
+
 
 module.exports = config
