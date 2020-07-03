@@ -63,7 +63,7 @@ const configPlugins = {
             path: path.resolve('dist/'),
             filename: `${entryName}-${gitRevisionPlugin.version()}`,
             include: [new RegExp(`${entryName}/.*`)],
-            pathMapper: assetPath => path.basename(assetPath),
+            pathMapper: assetPath => assetPath.indexOf('node_modules') >= 0 ? assetPath.replace(/.*node_modules/,'node_modules') : path.basename(assetPath),
             extension: 'zip'
         })
         ]

@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const m = require('module');
 
+const ModuleInstaller = require('./js/ModuleInstaller');
+
 const config_data = fs.readFileSync(path.join(__dirname,'./webpack.config.js'));
 
 function LoadConfig() {
@@ -10,4 +12,5 @@ function LoadConfig() {
   return module.exports;
 }
 
-module.exports = LoadConfig;
+module.exports.Load = LoadConfig;
+module.exports.ModuleInstaller = ModuleInstaller;
