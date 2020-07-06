@@ -6,7 +6,7 @@ const cp = require('child_process');
 const path = require('path');
 
 function run_npm(path,modules) {
-  const result = cp.spawnSync( 'npm', ['install','--no-bin-links','--no-optional','--no-package-lock','--prefix' , path ].concat(modules), { shell: true });
+  const result = cp.spawnSync( 'npm', ['install','--no-optional','--no-package-lock','--prefix' , path ].concat(modules), { shell: true });
   console.log(result.stdout.toString());
 };
 
