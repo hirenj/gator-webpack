@@ -47,7 +47,7 @@ const configBase = {
   devtool: 'inline-cheap-module-source-map',
   plugins: [
     new RemovePlugin({ after: {
-        include: [`./dist/js`],
+        include: [path.resolve('dist/js')],
         log: true,
     } })
   ]
@@ -60,7 +60,6 @@ const configPlugins = {
         return [
         new CopyPlugin({patterns: [{ from: 'resources.conf.json', to: `js/${entryName}/resources.conf.json` }] }),
         new ZipPlugin({
-            path: path.resolve('dist/'),
             filename: `${entryName}-${gitRevisionPlugin.version()}`,
             include: [new RegExp(`${entryName}/.*`)],
             pathMapper: assetPath => assetPath.indexOf('node_modules') >= 0 ? assetPath.replace(/.*node_modules/,'node_modules') : path.basename(assetPath),
