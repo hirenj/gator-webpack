@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin" : {
+    "deploy_lambda" : "./scripts/deploy.sh"
+  },
   "author": "hirenj@gmail.com",
   "license": "ISC",
   "dependencies": {
