@@ -58,7 +58,6 @@ const configPlugins = {
     plugins: 
     Object.keys(configBase.entry).map((entryName) => {
         return [
-        new CopyPlugin({patterns: [{ from: 'resources.conf.json', to: `js/${entryName}/resources.conf.json` }] }),
         new ZipPlugin({
             filename: `${entryName}-${gitRevisionPlugin.version()}`,
             include: [new RegExp(`${entryName}/.*`)],
