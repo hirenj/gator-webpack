@@ -66,6 +66,7 @@ def combine_resources(resources):
       results[wanted_key][ resource['LogicalResourceId'] ] = resource['PhysicalResourceId']
 
   results['stack'] = os.environ['STACK']
+  results['region'] = os.environ['AWS_REGION']
   results['timestamp'] = datetime.datetime.now().isoformat()
 
   return results
