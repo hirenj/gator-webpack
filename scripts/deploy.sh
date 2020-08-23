@@ -49,6 +49,7 @@ def combine_resources(resources):
     'AWS::DynamoDB::Table' : 'tables',
     'AWS::StepFunctions::StateMachine' : 'stepfunctions',
     'AWS::SQS::Queue' : 'queue',
+    'AWS::SNS::Topic' : 'queue',
     'AWS::Events::Rule' : 'rule'
   }
   results = {
