@@ -41,6 +41,17 @@ def remove_from_zip(zipfname, *filenames):
   finally:
     shutil.rmtree(tempdir)
 
+def mergedicts(dict1, dict2):
+  """ Recursively merges dict2 into dict1 """
+  if not isinstance(dict1, dict) or not isinstance(dict2, dict):
+      return dict2
+  for k in dict2:
+      if k in dict1:
+          dict1[k] = mergedicts(dict1[k], dict2[k])
+      else:
+          dict1[k] = dict2[k]
+  return dict1
+
 def combine_resources(resources):
 
   resource_keys = {
@@ -50,7 +61,8 @@ def combine_resources(resources):
     'AWS::StepFunctions::StateMachine' : 'stepfunctions',
     'AWS::SQS::Queue' : 'queue',
     'AWS::SNS::Topic' : 'queue',
-    'AWS::Events::Rule' : 'rule'
+    'AWS::Events::Rule' : 'rule',
+    'AWS::IAM::ManagedPolicy' : 'policies'
   }
   results = {
     'functions' : {},
@@ -58,13 +70,22 @@ def combine_resources(resources):
     'tables' : {},
     'stepfunctions' : {},
     'queue' : {},
-    'rule'  : {}
+    'rule'  : {},
+    'policies' : {}
   }
 
+  wanted_stacks = []
+
   for resource in resources:
+    if resource['ResourceType'] == 'AWS::CloudFormation::Stack':
+      wanted_stacks.append(resource['PhysicalResourceId'])
+
     if resource['ResourceType'] in resource_keys:
       wanted_key = resource_keys[ resource['ResourceType'] ]
       results[wanted_key][ resource['LogicalResourceId'] ] = resource['PhysicalResourceId']
+
+  for substack in wanted_stacks:
+    results = mergedicts(results,get_stack_resources(substack))
 
   results['stack'] = os.environ['STACK']
   results['region'] = os.environ['AWS_REGION']
@@ -73,7 +94,7 @@ def combine_resources(resources):
   return results
 
 def get_stack_resources(stack):
-  json_text = subprocess.check_output(['aws','cloudformation','list-stack-resources','--region',os.environ['AWS_REGION'],'--stack-name', os.environ['STACK'] ])
+  json_text = subprocess.check_output(['aws','cloudformation','list-stack-resources','--region',os.environ['AWS_REGION'],'--stack-name', stack ])
   return combine_resources(json.loads(json_text.decode('utf8'))['StackResourceSummaries'])
 
 def main():
@@ -84,7 +105,7 @@ def main():
     sys.exit(1)
 
   if input_zip is None and args.print_resources:
-    print(json.dumps(get_stack_resources(os.environ['STACK'])))
+    print(json.dumps(get_stack_resources(os.environ['STACK']),indent=2))
     sys.exit(0)
 
   if input_zip is None:
